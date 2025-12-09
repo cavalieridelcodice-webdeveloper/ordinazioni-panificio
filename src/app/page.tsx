@@ -1,66 +1,36 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from 'next/link';
+import OrderForm from './components/OrderForm';
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="container">
+      <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <h1 style={{ fontSize: '3rem', margin: 0, background: 'linear-gradient(to right, #f39c12, #e67e22)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          Forno Artigianale
+        </h1>
+        <p style={{ fontSize: '1.2rem', opacity: 0.8, marginTop: '1rem' }}>
+          Prodotti tipici appena sfornati. Ordina online e ritira all'orario che preferisci.
+        </p>
+      </header>
+
+      <OrderForm />
+
+      <footer style={{ textAlign: 'center', marginTop: '4rem', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
+        <Link href="/staff/login" style={{
+          textDecoration: 'none',
+          color: 'var(--text-color)',
+          border: '1px solid rgba(255,255,255,0.2)',
+          padding: '8px 16px',
+          borderRadius: '20px',
+          fontSize: '0.9rem',
+          backdropFilter: 'blur(5px)',
+          background: 'rgba(255,255,255,0.05)',
+          transition: 'all 0.2s'
+        }}>
+          🔒 Accesso Staff
+        </Link>
+        <div style={{ opacity: 0.5, fontSize: '0.9rem' }}>&copy; 2024 Forno Artigianale. Tutti i diritti riservati.</div>
+      </footer>
+    </main>
   );
 }
