@@ -6,7 +6,7 @@ export default function Home() {
     <main className="container">
       <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
         <h1 style={{ fontSize: '3rem', margin: 0, background: 'linear-gradient(to right, #f39c12, #e67e22)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          Forno Artigianale
+          Panificio la bella Bari
         </h1>
         <p style={{ fontSize: '1.2rem', opacity: 0.8, marginTop: '1rem' }}>
           Prodotti tipici appena sfornati. Ordina online e ritira all'orario che preferisci.
