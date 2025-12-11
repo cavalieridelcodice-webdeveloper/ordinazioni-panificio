@@ -36,6 +36,15 @@ export default function Dashboard() {
                 const data = await res.json();
                 setOrders(data.filter((o: Order) => o.status !== 'Completato'));
                 setAllOrders(data);
+            } else {
+                const err = await res.json();
+                console.error("Fetch error:", err);
+                // Only alert in development or if critical debugging needed
+                // For now, logging to console is better, but user needs to see it.
+                // Let's console.error it with a clear prefix the user can screenshot.
+                console.error("SERVER ERROR DETAILS:", err.details || err.error);
+                // Also setting an error state to display in UI might be better?
+                // But console is what they are looking at.
             }
         } catch (e) {
             console.error(e);
