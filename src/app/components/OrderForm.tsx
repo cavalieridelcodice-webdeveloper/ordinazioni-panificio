@@ -47,7 +47,7 @@ export default function OrderForm() {
                 })
             });
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Errore durante l\'invio');
+            if (!res.ok) throw new Error(data.details || data.error || 'Errore durante l\'invio');
             setStatus('success');
             setCart([]);
             setCart([]);
