@@ -48,7 +48,9 @@ export default function OrderForm() {
             });
             const data = await res.json();
             if (!res.ok) {
-                console.error("ORDER SUBMIT ERROR:", data); // Log full error object
+                console.error("ORDER SUBMIT ERROR:", data);
+                // Alert the specific error to the user for debugging
+                alert("ERRORE SERVER: " + (data.details || data.error || JSON.stringify(data)));
                 throw new Error(data.details || data.error || 'Errore durante l\'invio');
             }
             setStatus('success');
