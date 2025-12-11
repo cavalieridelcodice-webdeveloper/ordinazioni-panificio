@@ -12,7 +12,11 @@ export async function GET() {
         });
         return NextResponse.json(orders);
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
+        console.error('Error fetching orders:', error);
+        return NextResponse.json({
+            error: 'Failed to fetch orders',
+            details: error instanceof Error ? error.message : String(error)
+        }, { status: 500 });
     }
 }
 
