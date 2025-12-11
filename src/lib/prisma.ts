@@ -10,8 +10,12 @@ const prismaClientSingleton = () => {
     console.log('TURSO_DATABASE_URL present:', !!url);
     console.log('TURSO_AUTH_TOKEN present:', !!authToken);
 
+    if (!url) {
+        throw new Error('TURSO_DATABASE_URL is missing from environment variables');
+    }
+
     const libsql = createClient({
-        url: url!,
+        url,
         authToken: authToken,
     })
     const adapter = new PrismaLibSql(libsql as any)
