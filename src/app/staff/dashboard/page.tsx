@@ -28,6 +28,11 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [showStats, setShowStats] = useState(false);
     const [sortBy, setSortBy] = useState<'id' | 'pickup'>('pickup');
+    const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+    const [editItems, setEditItems] = useState<OrderItem[]>([]);
+    const [editCustomerName, setEditCustomerName] = useState('');
+    const [editPickupTime, setEditPickupTime] = useState('');
+    const [editNotes, setEditNotes] = useState('');
 
     const fetchOrders = async () => {
         try {
@@ -69,6 +74,79 @@ export default function Dashboard() {
         } catch (e) {
             alert('Errore aggiornamento');
         }
+    };
+
+    const openEditModal = (order: Order) => {
+        setEditingOrder(order);
+        setEditItems(JSON.parse(order.items));
+        setEditCustomerName(order.customerName);
+        setEditPickupTime(order.pickupTime);
+        setEditNotes(order.notes || '');
+    };
+
+    const saveOrderChanges = async () => {
+        if (!editingOrder) return;
+
+        try {
+            const response = await fetch(`/api/orders/${editingOrder.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    items: JSON.stringify(editItems),
+                    customerName: editCustomerName,
+                    pickupTime: editPickupTime,
+                    notes: editNotes,
+                    status: editingOrder.status
+                })
+            });
+
+            if (response.ok) {
+                setEditingOrder(null);
+                fetchOrders();
+            } else {
+                alert('Errore nel salvataggio');
+            }
+        } catch (e) {
+            alert('Errore nel salvataggio');
+        }
+    };
+
+    const deleteOrder = async (id: number) => {
+        if (!confirm('Sei sicuro di voler eliminare questo ordine?')) return;
+
+        try {
+            const response = await fetch(`/api/orders/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                fetchOrders();
+            } else {
+                alert('Errore nell\'eliminazione');
+            }
+        } catch (e) {
+            alert('Errore nell\'eliminazione');
+        }
+    };
+
+    const addNewItem = () => {
+        setEditItems([...editItems, {
+            productName: 'Panzerotto',
+            variant: 'Mozzarella e Pomodoro',
+            quantity: 1,
+            unit: 'pz',
+            price: 2.50
+        }]);
+    };
+
+    const removeItem = (index: number) => {
+        setEditItems(editItems.filter((_, i) => i !== index));
+    };
+
+    const updateItem = (index: number, field: keyof OrderItem, value: any) => {
+        const newItems = [...editItems];
+        newItems[index] = { ...newItems[index], [field]: value };
+        setEditItems(newItems);
     };
 
     const printOrder = (order: Order) => {
@@ -284,6 +362,127 @@ export default function Dashboard() {
                 </div>
             )}
 
+            {editingOrder && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.8)', zIndex: 100,
+                    display: 'flex', justifyContent: 'center', alignItems: 'center',
+                    padding: '20px'
+                }}>
+                    <div className="glass-panel" style={{ width: '90%', maxWidth: '800px', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: '#2c3e50' }}>
+                        <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h2 style={{ margin: 0 }}>Modifica Ordine #{editingOrder.id}</h2>
+                            <button onClick={() => setEditingOrder(null)} style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
+                        </div>
+
+                        <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Nome Cliente</label>
+                                <input
+                                    type="text"
+                                    value={editCustomerName}
+                                    onChange={(e) => setEditCustomerName(e.target.value)}
+                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.3)', color: 'white' }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Orario Ritiro</label>
+                                <input
+                                    type="time"
+                                    value={editPickupTime}
+                                    onChange={(e) => setEditPickupTime(e.target.value)}
+                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.3)', color: 'white' }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>Note</label>
+                                <textarea
+                                    value={editNotes}
+                                    onChange={(e) => setEditNotes(e.target.value)}
+                                    rows={3}
+                                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.3)', color: 'white', resize: 'vertical' }}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: '1rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                    <label style={{ fontWeight: 'bold' }}>Prodotti</label>
+                                    <button onClick={addNewItem} className="btn-primary" style={{ padding: '6px 12px', fontSize: '0.9rem' }}>+ Aggiungi Prodotto</button>
+                                </div>
+
+                                {editItems.map((item, index) => (
+                                    <div key={index} style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr auto', gap: '0.5rem', alignItems: 'end' }}>
+                                            <div>
+                                                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Prodotto</label>
+                                                <select
+                                                    value={item.productName}
+                                                    onChange={(e) => updateItem(index, 'productName', e.target.value)}
+                                                    style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.3)', color: 'white', fontSize: '0.9rem' }}
+                                                >
+                                                    <option>Panzerotto</option>
+                                                    <option>Focaccia</option>
+                                                    <option>Calzone</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Variante</label>
+                                                <input
+                                                    type="text"
+                                                    value={item.variant}
+                                                    onChange={(e) => updateItem(index, 'variant', e.target.value)}
+                                                    style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.3)', color: 'white', fontSize: '0.9rem' }}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Quantità</label>
+                                                <input
+                                                    type="number"
+                                                    value={item.quantity}
+                                                    onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value))}
+                                                    min="0.1"
+                                                    step="0.1"
+                                                    style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.3)', color: 'white', fontSize: '0.9rem' }}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.25rem' }}>Unità</label>
+                                                <select
+                                                    value={item.unit}
+                                                    onChange={(e) => updateItem(index, 'unit', e.target.value)}
+                                                    style={{ width: '100%', padding: '6px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(0,0,0,0.3)', color: 'white', fontSize: '0.9rem' }}
+                                                >
+                                                    <option value="pz">pz</option>
+                                                    <option value="kg">kg</option>
+                                                </select>
+                                            </div>
+                                            <button
+                                                onClick={() => removeItem(index)}
+                                                style={{ background: '#e74c3c', border: 'none', color: 'white', padding: '6px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.9rem' }}
+                                                title="Rimuovi prodotto"
+                                            >
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div style={{ padding: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                            <button onClick={() => setEditingOrder(null)} style={{ padding: '10px 20px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.3)', background: 'transparent', color: 'white', cursor: 'pointer' }}>
+                                Annulla
+                            </button>
+                            <button onClick={saveOrderChanges} className="btn-primary" style={{ padding: '10px 20px' }}>
+                                💾 Salva Modifiche
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {loading ? <p>Caricamento...</p> : null}
 
             <div className={styles.grid}>
@@ -317,7 +516,7 @@ export default function Dashboard() {
 
                             <div className={styles.footer}>
                                 <div>Invio: {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                                <div className={styles.actions} style={{ display: 'flex', gap: '0.5rem' }}>
+                                <div className={styles.actions} style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                                     <button
                                         onClick={() => printOrder(order)}
                                         style={{ background: 'none', border: '1px solid white', color: 'white', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer' }}
@@ -326,19 +525,10 @@ export default function Dashboard() {
                                         🖨
                                     </button>
                                     <button
-                                        onClick={() => {
-                                            const newStatus = prompt('Modifica stato ordine:', order.status);
-                                            if (newStatus && newStatus !== order.status) {
-                                                fetch(`/api/orders/${order.id}`, {
-                                                    method: 'PATCH',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({ status: newStatus })
-                                                }).then(() => fetchOrders());
-                                            }
-                                        }}
+                                        onClick={() => openEditModal(order)}
                                         className="btn-primary"
                                         style={{ padding: '5px 10px', fontSize: '0.9rem', background: '#3498db' }}
-                                        title="Modifica stato"
+                                        title="Modifica ordine"
                                     >
                                         ✏️ Modifica
                                     </button>
@@ -349,6 +539,14 @@ export default function Dashboard() {
                                         title="Segna come completato"
                                     >
                                         ✓ Completato
+                                    </button>
+                                    <button
+                                        onClick={() => deleteOrder(order.id)}
+                                        className="btn-primary"
+                                        style={{ padding: '5px 10px', fontSize: '0.9rem', background: '#e74c3c' }}
+                                        title="Elimina ordine"
+                                    >
+                                        🗑️ Elimina
                                     </button>
                                 </div>
                             </div>
