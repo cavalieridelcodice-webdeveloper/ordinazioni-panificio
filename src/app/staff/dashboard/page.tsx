@@ -33,6 +33,7 @@ export default function Dashboard() {
     const [editCustomerName, setEditCustomerName] = useState('');
     const [editPickupTime, setEditPickupTime] = useState('');
     const [editNotes, setEditNotes] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
 
     const fetchOrders = async () => {
         try {
@@ -190,7 +191,17 @@ export default function Dashboard() {
     };
 
     const getSortedOrders = () => {
-        return [...orders].sort((a, b) => {
+        let filtered = orders;
+
+        // Filter by search query
+        if (searchQuery.trim()) {
+            filtered = filtered.filter(order =>
+                order.customerName.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        }
+
+        // Sort
+        return [...filtered].sort((a, b) => {
             if (sortBy === 'id') return a.id - b.id;
             return a.pickupTime.localeCompare(b.pickupTime);
         });
@@ -257,8 +268,8 @@ export default function Dashboard() {
 
     return (
         <div className="container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
                     <h1 style={{ margin: 0 }}>Ordini</h1>
                     <select
                         value={sortBy}
@@ -268,6 +279,22 @@ export default function Dashboard() {
                         <option value="pickup">Ordina per Orario Ritiro</option>
                         <option value="id">Ordina per Numero (#)</option>
                     </select>
+                    <input
+                        type="text"
+                        placeholder="🔍 Cerca per nome cliente..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{
+                            padding: '8px 12px',
+                            borderRadius: '20px',
+                            border: '1px solid rgba(255,255,255,0.3)',
+                            background: 'rgba(0,0,0,0.3)',
+                            color: 'white',
+                            fontSize: '0.9rem',
+                            minWidth: '250px',
+                            outline: 'none'
+                        }}
+                    />
                 </div>
                 <div style={{ display: 'flex', gap: '1rem' }}>
                     <a
