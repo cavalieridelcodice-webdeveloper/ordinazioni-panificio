@@ -77,8 +77,10 @@ export default function Dashboard() {
     };
 
     const openEditModal = (order: Order) => {
+        const items = JSON.parse(order.items);
+        console.log('Opening edit modal with items:', items);
         setEditingOrder(order);
-        setEditItems(JSON.parse(order.items));
+        setEditItems(items);
         setEditCustomerName(order.customerName);
         setEditPickupTime(order.pickupTime);
         setEditNotes(order.notes || '');
