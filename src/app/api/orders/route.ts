@@ -40,15 +40,24 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Pickup time must be between 09:00 and 18:00' }, { status: 400 });
         }
 
+        console.log('--- DEBUG: Pre-Prisma Create ---');
+        console.log('TURSO_DATABASE_URL exists:', !!process.env.TURSO_DATABASE_URL);
+        console.log('TURSO_AUTH_TOKEN exists:', !!process.env.TURSO_AUTH_TOKEN);
+        console.log('Prisma instance available:', !!prisma);
+
+        // Sanity check order data
+        const orderData = {
+            items: JSON.stringify(items),
+            pickupTime,
+            notes,
+            totalPrice,
+            customerName: customerName || 'Cliente',
+            status: 'In attesa',
+        };
+        console.log('Order Data:', orderData);
+
         const order = await prisma.order.create({
-            data: {
-                items: JSON.stringify(items),
-                pickupTime,
-                notes,
-                totalPrice,
-                customerName: customerName || 'Cliente', // Fallback or required? User asked for it, so better be required on frontend
-                status: 'In attesa',
-            },
+            data: orderData,
         });
 
         return NextResponse.json(order);

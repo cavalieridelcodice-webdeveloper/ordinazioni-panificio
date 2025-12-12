@@ -23,6 +23,7 @@ const prismaClientSingleton = () => {
         // Validate URL format before passing to createClient
         try {
             new URL(url);
+            console.log('Valid URL verified:', url.replace(/:[^:]*@/, ':***@'));
         } catch (e) {
             console.error(`Invalid URL format for TURSO_DATABASE_URL: '${url}'`);
             throw new Error(`Invalid TURSO_DATABASE_URL format: ${e instanceof Error ? e.message : String(e)}`);
