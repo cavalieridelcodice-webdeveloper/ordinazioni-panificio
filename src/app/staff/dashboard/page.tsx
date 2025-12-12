@@ -190,6 +190,24 @@ export default function Dashboard() {
                     </select>
                 </div>
                 <div style={{ display: 'flex', gap: '1rem' }}>
+                    <a
+                        href="/"
+                        style={{
+                            textDecoration: 'none',
+                            color: 'white',
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            fontSize: '0.9rem',
+                            fontWeight: 'bold',
+                            boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+                            transition: 'all 0.3s',
+                            border: 'none',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        🏠 Torna agli Ordini
+                    </a>
                     <button onClick={() => setShowStats(true)} className="btn-primary" style={{ background: '#3498db', fontSize: '0.9rem', padding: '8px 16px' }}>📊 Statistiche</button>
                     <button onClick={fetchOrders} className="btn-primary" style={{ fontSize: '0.9rem', padding: '8px 16px' }}>Aggiorna</button>
                 </div>
@@ -299,9 +317,39 @@ export default function Dashboard() {
 
                             <div className={styles.footer}>
                                 <div>Invio: {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                                <div className={styles.actions}>
-                                    <button onClick={() => printOrder(order)} style={{ background: 'none', border: '1px solid white', color: 'white', borderRadius: '4px', padding: '5px 10px' }}>🖨</button>
-                                    <button onClick={() => markCompleted(order.id)} className="btn-primary" style={{ padding: '5px 10px', fontSize: '0.9rem' }}>Pronto</button>
+                                <div className={styles.actions} style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button
+                                        onClick={() => printOrder(order)}
+                                        style={{ background: 'none', border: '1px solid white', color: 'white', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer' }}
+                                        title="Stampa ordine"
+                                    >
+                                        🖨
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const newStatus = prompt('Modifica stato ordine:', order.status);
+                                            if (newStatus && newStatus !== order.status) {
+                                                fetch(`/api/orders/${order.id}`, {
+                                                    method: 'PATCH',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({ status: newStatus })
+                                                }).then(() => fetchOrders());
+                                            }
+                                        }}
+                                        className="btn-primary"
+                                        style={{ padding: '5px 10px', fontSize: '0.9rem', background: '#3498db' }}
+                                        title="Modifica stato"
+                                    >
+                                        ✏️ Modifica
+                                    </button>
+                                    <button
+                                        onClick={() => markCompleted(order.id)}
+                                        className="btn-primary"
+                                        style={{ padding: '5px 10px', fontSize: '0.9rem', background: '#2ecc71' }}
+                                        title="Segna come completato"
+                                    >
+                                        ✓ Completato
+                                    </button>
                                 </div>
                             </div>
                         </div>
