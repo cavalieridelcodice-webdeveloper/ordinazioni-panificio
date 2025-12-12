@@ -1,15 +1,25 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { db, Order } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        const orders = await prisma.order.findMany({
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
+        const result = await db.execute(
+            'SELECT * FROM "Order" ORDER BY createdAt DESC'
+        );
+
+        const orders: Order[] = result.rows.map((row: any) => ({
+            id: row.id as number,
+            items: row.items as string,
+            totalPrice: row.totalPrice as number,
+            pickupTime: row.pickupTime as string,
+            customerName: row.customerName as string,
+            notes: row.notes as string | null,
+            status: row.status as string,
+            createdAt: row.createdAt as string,
+        }));
+
         return NextResponse.json(orders);
     } catch (error) {
         console.error('Error fetching orders:', error);
@@ -40,26 +50,21 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Pickup time must be between 09:00 and 18:00' }, { status: 400 });
         }
 
-        console.log('--- DEBUG: Pre-Prisma Create ---');
-        console.log('TURSO_DATABASE_URL exists:', !!process.env.TURSO_DATABASE_URL);
-        console.log('TURSO_AUTH_TOKEN exists:', !!process.env.TURSO_AUTH_TOKEN);
-        console.log('Prisma instance available:', !!prisma);
-
-        // Sanity check order data
-        const orderData = {
-            items: JSON.stringify(items),
-            pickupTime,
-            notes,
-            totalPrice,
-            customerName: customerName || 'Cliente',
-            status: 'In attesa',
-        };
-        console.log('Order Data:', orderData);
-
-        const order = await prisma.order.create({
-            data: orderData,
+        const result = await db.execute({
+            sql: `INSERT INTO "Order" (items, pickupTime, notes, totalPrice, customerName, status, createdAt) 
+                  VALUES (?, ?, ?, ?, ?, ?, datetime('now')) 
+                  RETURNING *`,
+            args: [
+                JSON.stringify(items),
+                pickupTime,
+                notes || null,
+                totalPrice,
+                customerName || 'Cliente',
+                'In attesa'
+            ]
         });
 
+        const order = result.rows[0];
         return NextResponse.json(order);
     } catch (error) {
         console.error('Error creating order:', error);

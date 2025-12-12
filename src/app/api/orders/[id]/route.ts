@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { db } from '@/lib/db';
 
 export async function PATCH(
     request: Request,
@@ -11,13 +11,21 @@ export async function PATCH(
         const body = await request.json();
         const { status } = body;
 
-        const order = await prisma.order.update({
-            where: { id },
-            data: { status },
+        const result = await db.execute({
+            sql: 'UPDATE "Order" SET status = ? WHERE id = ? RETURNING *',
+            args: [status, id]
         });
 
-        return NextResponse.json(order);
+        if (result.rows.length === 0) {
+            return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+        }
+
+        return NextResponse.json(result.rows[0]);
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to update order' }, { status: 500 });
+        console.error('Error updating order:', error);
+        return NextResponse.json({
+            error: 'Failed to update order',
+            details: error instanceof Error ? error.message : String(error)
+        }, { status: 500 });
     }
 }
