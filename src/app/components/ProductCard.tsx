@@ -46,7 +46,7 @@ export default function ProductCard({ product, onAdd }: ProductCardProps) {
                 <div className={styles.field}>
                     <label>Misura</label>
                     <select value={unit} onChange={(e) => setUnit(e.target.value as 'pezzi' | 'kg')}>
-                        <option value="pezzi">A Pezzi (Note)</option>
+                        <option value="pezzi">A Pezzi </option>
                         <option value="kg">A Kg</option>
                     </select>
                 </div>

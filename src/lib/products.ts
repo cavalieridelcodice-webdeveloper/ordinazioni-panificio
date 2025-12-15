@@ -17,8 +17,13 @@ export const PRODUCTS: Product[] = [
         name: 'Panzerotto',
         variants: [
             { name: 'Mozzarella e Pomodoro' },
+            { name: 'Mozzarella senza lattosio e pomodoro' }, // Nuova
             { name: 'Carne' },
-            { name: 'Rape' }
+            { name: 'Carne e Mozzarella senza lattosio' },    // Nuova
+            { name: 'Rape' },
+            { name: 'Rape con mozzarella senza lattosio' },// Nuova
+            { name: 'Solo rape' },   // Nuova
+            { name: 'Cipolla caramellata con mozzarella' }  // Nuova
         ],
         pricePerUnit: 2.50,
         hasQuantityInput: true
@@ -46,12 +51,50 @@ export const PRODUCTS: Product[] = [
         id: 'calzone',
         name: 'Calzone',
         variants: [
-            { name: 'Carne' },
-            { name: 'Rape' },
-            { name: 'Prosciutto Cotto' }
+            { name: 'Carne e Mozzarella' },
+            { name: 'Rape e Mozzarella' },
+            { name: 'Prosciutto Cotto e Mozzarella' }
         ],
         pricePerUnit: 3.50,
         pricePerKg: 15.00,
         hasQuantityInput: true
-    }
+    },
+    {
+        id: 'panini', // Nuova Categoria
+        name: 'Panini',
+        variants: [
+            { name: 'Rosette' },
+            { name: 'Tartaruche' },
+            { name: 'Olio' },
+            { name: 'Arabi' },
+            { name: 'Sandwich lunghi' },
+            { name: 'Sandwich tondi' },
+            { name: 'Mignon' }
+        ],
+        pricePerUnit: 1.00, // Imposta un prezzo predefinito
+        hasQuantityInput: true
+    },
+    {
+        id: 'pane', // Nuova Categoria
+        name: 'Pane',
+        variants: [
+            { name: 'Pane tondo' },
+            { name: 'Pane a filone' },
+            { name: 'Pane di semola' },
+            { name: 'Pane Integrale' }
+        ],
+        pricePerKg: 4.50, // Il pane solitamente va a Kg
+        hasQuantityInput: true
+    },
+    {
+        id: 'frittura-mista', // Nuova Categoria
+        name: 'Frittura Mista',
+        variants: [
+            { name: 'Piccola' },
+            { name: 'Media' },
+            { name: 'Grande' }
+        ],
+        pricePerUnit: 5.00, 
+        hasQuantityInput: true
+    },
 ];
