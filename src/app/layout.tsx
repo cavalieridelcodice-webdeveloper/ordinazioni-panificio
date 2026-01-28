@@ -1,10 +1,10 @@
-import type { Metadata, Viewport } from 'next'; // Aggiunto Viewport
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import OneSignalInitializer from './components/OneSignalInitializer' // Creeremo questo componente
 
 const inter = Inter({ subsets: ['latin'] });
 
-// Questa parte dice al browser di che colore colorare la barra superiore del telefono
 export const viewport: Viewport = {
   themeColor: '#ffffff',
   width: 'device-width',
@@ -36,11 +36,14 @@ export default function RootLayout({
   return (
     <html lang="it">
       <head>
-        {/* Questo rimuove il "simbolo del browser" su alcuni vecchi dispositivi Android */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {/* Inizializzatore OneSignal */}
+        <OneSignalInitializer /> 
+        {children}
+      </body>
     </html>
   );
 }
