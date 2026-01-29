@@ -44,7 +44,6 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Pickup time is required' }, { status: 400 });
         }
 
-        // Validate pickup time range (09:00 to 18:00)
         const [hours, minutes] = pickupTime.split(':').map(Number);
         if (hours < 9 || hours > 18 || (hours === 18 && minutes > 0)) {
             return NextResponse.json({ error: 'Pickup time must be between 09:00 and 18:00' }, { status: 400 });
@@ -65,6 +64,36 @@ export async function POST(request: Request) {
         });
 
         const order = result.rows[0];
+
+        // --- INVIO NOTIFICA ONESIGNAL ALLO STAFF ---
+        try {
+            await fetch("https://onesignal.com/api/v1/notifications", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Authorization": `Basic ${process.env.ONESIGNAL_REST_API_KEY}`
+                },
+                body: JSON.stringify({
+                    app_id: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+                    // Invia solo a chi ha il tag role = staff
+                    filters: [
+                        { "field": "tag", "key": "role", "relation": "=", "value": "staff" }
+                    ],
+                    headings: { "it": "🍞 Nuovo Ordine Ricevuto!" },
+                    contents: { "it": `Cliente: ${customerName || 'Anonimo'} - Totale: €${totalPrice}` },
+                    // Impostazioni per il "numeretto" (badge)
+                    ios_badgeType: "Increase",
+                    ios_badgeCount: 1,
+                    android_accent_color: "FF0000",
+                    priority: 10 // Alta priorità per farla arrivare subito
+                })
+            });
+        } catch (pushError) {
+            // Logghiamo l'errore ma non blocchiamo la risposta dell'ordine
+            console.error('Errore invio notifica push:', pushError);
+        }
+        // --------------------------------------------
+
         return NextResponse.json(order);
     } catch (error) {
         console.error('Error creating order:', error);
